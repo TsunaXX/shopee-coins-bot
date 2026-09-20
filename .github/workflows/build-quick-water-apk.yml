@@ -24,6 +24,7 @@ jobs:
           unzip -t /tmp/quick-water-v03.zip
           mkdir -p /tmp/quick-water-v03
           unzip -q /tmp/quick-water-v03.zip -d /tmp/quick-water-v03
+          printf 'android.useAndroidX=true\n' > /tmp/quick-water-v03/ShopeeQuickWaterApp_v03/gradle.properties
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
