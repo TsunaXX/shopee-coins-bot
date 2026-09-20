@@ -31,8 +31,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Check preinstalled Android SDK
+        shell: bash
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -1 "$ANDROID_HOME/platforms" | tail -20 || true
+          ls -1 "$ANDROID_HOME/build-tools" | tail -20 || true
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
