@@ -6,8 +6,7 @@ on:
     branches:
       - quick-water-app-v0.1
     paths:
-      - 'quick-water-src/**'
-      - 'quick-water-overrides/**'
+      - 'quick-water-v03-src/**'
       - '.github/workflows/build-quick-water-apk.yml'
 
 jobs:
@@ -17,17 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild source archive
+      - name: Rebuild v0.3 source archive
         shell: bash
         run: |
-          cat quick-water-src/chunk*.b64 > /tmp/quick-water-source.b64
-          base64 --decode /tmp/quick-water-source.b64 > /tmp/quick-water-source.zip
-          unzip -t /tmp/quick-water-source.zip
-          mkdir -p /tmp/quick-water-src
-          unzip -q /tmp/quick-water-source.zip -d /tmp/quick-water-src
-
-      - name: Apply v0.2 permission fix
-        run: python quick-water-overrides/patch_v02.py /tmp/quick-water-src/ShopeeQuickWaterApp
+          cat quick-water-v03-src/chunk*.b64 > /tmp/quick-water-v03.b64
+          base64 --decode /tmp/quick-water-v03.b64 > /tmp/quick-water-v03.zip
+          unzip -t /tmp/quick-water-v03.zip
+          mkdir -p /tmp/quick-water-v03
+          unzip -q /tmp/quick-water-v03.zip -d /tmp/quick-water-v03
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -48,12 +44,12 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
-        working-directory: /tmp/quick-water-src/ShopeeQuickWaterApp
+        working-directory: /tmp/quick-water-v03/ShopeeQuickWaterApp_v03
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ShopeeQuickWater-v0.2-debug
-          path: /tmp/quick-water-src/ShopeeQuickWaterApp/app/build/outputs/apk/debug/app-debug.apk
+          name: ShopeeQuickWater-v0.3-debug
+          path: /tmp/quick-water-v03/ShopeeQuickWaterApp_v03/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
