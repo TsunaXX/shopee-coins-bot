@@ -6,7 +6,7 @@ on:
     branches:
       - quick-water-app-v0.1
     paths:
-      - 'quick-water-v03-src/**'
+      - 'quick-water-v04-src/**'
       - '.github/workflows/build-quick-water-apk.yml'
 
 jobs:
@@ -16,21 +16,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild v0.3 source archive
+      - name: Rebuild v0.4 source archive
         shell: bash
         run: |
-          cat quick-water-v03-src/chunk*.b64 > /tmp/quick-water-v03.b64
-          base64 --decode /tmp/quick-water-v03.b64 > /tmp/quick-water-v03.zip
-          unzip -t /tmp/quick-water-v03.zip
-          mkdir -p /tmp/quick-water-v03
-          unzip -q /tmp/quick-water-v03.zip -d /tmp/quick-water-v03
-          printf 'android.useAndroidX=true\n' > /tmp/quick-water-v03/ShopeeQuickWaterApp_v03/gradle.properties
+          cat quick-water-v04-src/chunk*.b64 > /tmp/quick-water-v04.b64
+          base64 --decode /tmp/quick-water-v04.b64 > /tmp/quick-water-v04.zip
+          unzip -t /tmp/quick-water-v04.zip
+          mkdir -p /tmp/quick-water-v04
+          unzip -q /tmp/quick-water-v04.zip -d /tmp/quick-water-v04
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Restore stable debug signing key
+        id: signing-key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: quick-water-stable-debug-keystore-v1
+
+      - name: Create stable debug signing key
+        if: steps.signing-key.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey             -keypass android             -dname "CN=Android Debug,O=Quick Water,C=TW"             -keyalg RSA -keysize 2048 -validity 10000
 
       - name: Check preinstalled Android SDK
         shell: bash
@@ -45,12 +58,12 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
-        working-directory: /tmp/quick-water-v03/ShopeeQuickWaterApp_v03
+        working-directory: /tmp/quick-water-v04/ShopeeQuickWaterApp_v04
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ShopeeQuickWater-v0.3-debug
-          path: /tmp/quick-water-v03/ShopeeQuickWaterApp_v03/app/build/outputs/apk/debug/app-debug.apk
+          name: ShopeeQuickWater-v0.4-stable-debug
+          path: /tmp/quick-water-v04/ShopeeQuickWaterApp_v04/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
