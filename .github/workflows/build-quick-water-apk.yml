@@ -29,6 +29,9 @@ jobs:
       - name: Apply v0.5 Final theme patch
         run: python quick-water-v05-overrides/patch_v05.py /tmp/quick-water-v05/ShopeeQuickWaterApp_v04
 
+      - name: Apply v0.5.1 light-theme fix
+        run: python quick-water-v05-overrides/patch_v051.py /tmp/quick-water-v05/ShopeeQuickWaterApp_v04
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -61,13 +64,13 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build V0.5 Final APK
+      - name: Build V0.5.1 Final APK
         working-directory: /tmp/quick-water-v05/ShopeeQuickWaterApp_v04
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ShopeeQuickWater-v0.5-Final
+          name: ShopeeQuickWater-v0.5.1-Final
           path: /tmp/quick-water-v05/ShopeeQuickWaterApp_v04/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
